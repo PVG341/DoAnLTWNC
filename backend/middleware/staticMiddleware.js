@@ -1,7 +1,10 @@
+const express = require("express");
 const path = require("path");
 
-// Cấu hình bằng json
-app.use("/", require("./routes/index"));
-app.set("views", path.join(__dirname, "views"));
+const staticMiddleware = express.static(path.join(__dirname, "../public"));
 
-app.use(express.static(path.join(__dirname, "public")));
+module.exports = staticMiddleware;
+
+// Cấu hình bằng json
+// app.use("/", require("./routes/index"));
+// app.set("views", path.join(__dirname, "views"));

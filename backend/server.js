@@ -1,5 +1,6 @@
 const connectDB = require("./config/db"); // Import kết nối MongoDB
 const cartRoutes = require("./routes/cart");
+const express = require("express");
 
 
 //Middleware
@@ -9,7 +10,7 @@ const staticMiddleware = require("./middleware/staticMiddleware");
 const bodyParserMiddleware = require("./middleware/bodyParserMiddleware");
 const authMiddleware = require("./middleware/authMiddleware");
 const corsMiddleware = require("./middleware/corsMiddleware");
-const sessionMiddleware = require("./middleware/sessionMiddleware");
+const sessionConfig = require("./middleware/sessionConfig");
 const customMiddleware = require("./middleware/customMiddleware");
 
 const app = express();
@@ -22,7 +23,7 @@ app.use(bodyParserMiddleware);
 app.use(corsMiddleware);
 
 // Cấu hình session
-app.use(sessionMiddleware);
+app.use(sessionConfig);
 
 // Sử dụng thư mục public để chứa file tĩnh
 app.use(staticMiddleware);
@@ -34,12 +35,12 @@ app.use(cartMiddleware);
 app.use(errorHandler);
 
 // Import routes
-const indexRoutes = require("./routes/index");
-const productRoutes = require("./routes/product");
+// const indexRoutes = require("./routes/index");
+// const productRoutes = require("./routes/product");
 
-app.use("/products", productRoutes);
-app.use("/cart", cartRoutes);
-app.use("/home", indexRoutes);
+// app.use("/products", productRoutes);
+// app.use("/cart", cartRoutes);
+// app.use("/home", indexRoutes);
 
 // Khởi động server
 const PORT = 3000;

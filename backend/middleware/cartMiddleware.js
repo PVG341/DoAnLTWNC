@@ -5,4 +5,5 @@ const cartMiddleware = (req, res, next) => {
     res.locals.cartCount = req.session.cart.reduce((sum, item) => sum + item.quantity, 0);
     next();
 };
-app.use(cartMiddleware);
+
+module.exports = cartMiddleware; 

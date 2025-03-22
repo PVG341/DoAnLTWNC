@@ -1,8 +1,10 @@
-const session = require("express-session"); 
+const session = require("express-session");
 
-app.use(session({
-    secret: "mysecretkey",  
-    resave: false,          
+const sessionConfig = session({
+    secret: "mysecretkey",
+    resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } 
-}));
+    cookie: { secure: false }
+});
+
+module.exports = sessionConfig;
