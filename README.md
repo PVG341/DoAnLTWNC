@@ -1,5 +1,7 @@
 
 # DoAnLTWNC
+yarn add axios cors express nodemon mongoose
+
 
 │── /backend                # Thư mục chứa backend (Node.js + Express)
 │   │── /config             # Cấu hình môi trường (database, secret keys, ...)
