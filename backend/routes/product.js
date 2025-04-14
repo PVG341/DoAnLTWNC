@@ -1,8 +1,8 @@
 const express = require("express");
-// const axios = require("axios");
+const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-const Product = require("../models/Product");
+const Product = require("../models/products");
 const multer = require("multer");
 
 const router = express.Router();
@@ -40,8 +40,34 @@ router.post("/add", upload.single("imageFile"), async (req, res) => {
     try {
         const { name, category_id, rate, p_brand, price, description, imageName } = req.body;
 
-        if (!name || !category_id || !rate || !p_brand || !price || !description || !req.file || !imageName) {
-            return res.status(400).json({ message: "Thiếu thông tin sản phẩm hoặc file ảnh" });
+        // Log ra dữ liệu nhận được từ frontend
+        console.log("Received data:", req.body);
+        console.log("Received file:", req.file);
+
+        // Kiểm tra từng trường hợp cụ thể và trả về thông báo lỗi chi tiết
+        if (!name) {
+            return res.status(400).json({ message: "Thiếu tên sản phẩm" });
+        }
+        if (!category_id) {
+            return res.status(400).json({ message: "Thiếu ID danh mục" });
+        }
+        if (rate === undefined) {
+            return res.status(400).json({ message: "Thiếu đánh giá sản phẩm" });
+        }
+        if (!p_brand) {
+            return res.status(400).json({ message: "Thiếu thương hiệu sản phẩm" });
+        }
+        if (!price) {
+            return res.status(400).json({ message: "Thiếu giá sản phẩm" });
+        }
+        if (!description) {
+            return res.status(400).json({ message: "Thiếu mô tả sản phẩm" });
+        }
+        if (!req.file) {
+            return res.status(400).json({ message: "Thiếu file ảnh sản phẩm" });
+        }
+        if (!imageName) {
+            return res.status(400).json({ message: "Thiếu tên ảnh" });
         }
 
         // Đường dẫn ảnh sau khi upload
@@ -53,10 +79,11 @@ router.post("/add", upload.single("imageFile"), async (req, res) => {
 
         res.json({ message: "Sản phẩm đã được thêm", product: newProduct });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Lỗi server" });
+        console.error("Error saving product:", error);
+        res.status(500).json({ message: "Lỗi server: " + error.message });
     }
 });
+
 
 
 // Lấy chi tiết sản phẩm
@@ -117,28 +144,46 @@ router.post("/add-to-cart/:id", async (req, res) => {
 // API cập nhật sản phẩm
 router.put("/:id", upload.single("imageFile"), async (req, res) => {
     try {
-        const { name, category_id, rate, p_brand, price, description, filename } = req.body;
-        let updateData = { name, category_id, rate, p_brand, price, description };
+        const { name, category_id, rate, p_brand, price, description, imageName } = req.body;
+        const productId = req.params.id;
 
-        // Nếu có ảnh mới
-        if (req.file) {
-            updateData.image = `/images/${req.file.filename}`;
-        }
-
-        const updatedProduct = await Product.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true } // Trả về sản phẩm sau khi cập nhật
-        );
-
-        if (!updatedProduct) {
+        // Kiểm tra sản phẩm tồn tại
+        const existingProduct = await Product.findById(productId);
+        if (!existingProduct) {
             return res.status(404).json({ message: "Sản phẩm không tồn tại" });
         }
 
-        res.json({ message: "Sản phẩm đã được cập nhật", product: updatedProduct });
+        // Cập nhật dữ liệu mới
+        let updateData = {
+            name: name || existingProduct.name,
+            category_id: category_id || existingProduct.category_id,
+            rate: rate !== undefined ? rate : existingProduct.rate,
+            p_brand: p_brand || existingProduct.p_brand,
+            price: price || existingProduct.price,
+            description: description || existingProduct.description
+        };
+
+        // Nếu có ảnh mới được upload
+        if (req.file && imageName) {
+            const ext = path.extname(req.file.originalname);
+            const newFileName = `${imageName}${ext}`;
+            const newPath = path.join(uploadDir, newFileName);
+
+            // Di chuyển ảnh và cập nhật đường dẫn
+            fs.renameSync(req.file.path, newPath);
+            updateData.image = `/images/${newFileName}`;
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            updateData,
+            { new: true }
+        );
+
+        res.json({ message: "Cập nhật sản phẩm thành công", product: updatedProduct });
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Lỗi server");
+        console.error("Lỗi cập nhật sản phẩm:", error);
+        res.status(500).json({ message: "Lỗi server: " + error.message });
     }
 });
 

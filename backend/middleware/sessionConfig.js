@@ -1,10 +1,10 @@
-const session = require("express-session");
+const session = require('express-session');
 
 const sessionConfig = session({
-    secret: "mysecretkey",
+    secret: 'your-secret-key', // Bạn có thể thay đổi secret key
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true },
 });
 
 module.exports = sessionConfig;
