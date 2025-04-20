@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Button } from 'antd';
+import { Layout, Menu } from 'antd';
 import { UserOutlined, ShoppingOutlined, AppstoreOutlined, UserAddOutlined, PlusCircleOutlined, PlusSquareOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom'; // Để chuyển hướng sau khi đăng xuất
-import axios from 'axios';
 import AdminProduct from '../../components/AdminProduct/AdminProduct';
 import AdminUser from '../../components/adminUser/AdminUser';
 import AdminCategory from '../../components/AdminCategory/AdminCategory';
@@ -51,7 +50,7 @@ const AdminPage = () => {
             Danh mục
           </Menu.Item>
           <Menu.Item key="add-category" icon={<PlusSquareOutlined />}>
-            Thêm danh mục (Chưa xong)
+            Thêm danh mục
           </Menu.Item>
           
           {/* Nút đăng xuất */}

@@ -1,9 +1,8 @@
 // HeaderComponent.js
 import React, { useState } from 'react';
-import { Col } from 'antd'; 
-import { Link } from 'react-router-dom';
+import { Col, Input } from 'antd'; 
+import { Link, useNavigate } from 'react-router-dom';
 import { WraperHeader, WrapperHeaderAccount, WrapperTextHeader, WrapperTextHeaderSmall } from './style';
-import Search from 'antd/es/transfer/search';
 import { ShoppingCartOutlined, UserOutlined } from '@ant-design/icons';
 import CartModalComponent from '../CartModalComponent/CartModalComponent';
 import { useAuth } from '../../context/AuthContext'; 
@@ -11,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 const HeaderComponent = () => {
   const { user, setUser, loading } = useAuth(); // Lấy thông tin người dùng từ AuthContext
   const [isCartVisible, setIsCartVisible] = useState(false);
+  const navigate = useNavigate();
 
   const toggleCart = () => {
     setIsCartVisible(!isCartVisible);
@@ -19,6 +19,12 @@ const HeaderComponent = () => {
   const handleCheckout = () => {
     console.log('Thanh toán...');
     setIsCartVisible(false);
+  };
+
+  const onSearch = (value) => {
+    if (value.trim() !== '') {
+      navigate(`/search-result?q=${encodeURIComponent(value)}`);
+    }
   };
 
   const handleLogout = () => {
@@ -49,11 +55,12 @@ const HeaderComponent = () => {
         </Col>
 
         <Col span={12}>
-          <Search
+          <Input.Search
             placeholder="Tìm kiếm sản phẩm..."
             allowClear
             enterButton="Search"
             size="large"
+            onSearch={onSearch}
           />
         </Col>
 

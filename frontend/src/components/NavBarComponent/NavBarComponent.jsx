@@ -7,7 +7,7 @@ const NavBarComponent = () => {
   const [categories, setCategories] = useState([])
 
   useEffect(() => {
-    axios.get('http://localhost:3000/categories')
+    axios.get('http://localhost:3000/api/categories')
       .then(res => setCategories(res.data))
       .catch(err => console.error("Lỗi khi lấy categories: ", err))
   }, [])
@@ -19,7 +19,11 @@ const NavBarComponent = () => {
           Trang chủ
         </Link>
         {categories.map(category => (
-          <Link key={category._id} to={`/category/${category.category_id}`} style={{ marginLeft: '16px' }}>
+          <Link
+            key={category._id}
+            to={`/products?category=${category._id}`}
+            style={{ marginLeft: '16px' }}
+          >
             {category.cat_name}
           </Link>
         ))}

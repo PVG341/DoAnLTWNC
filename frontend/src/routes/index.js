@@ -8,6 +8,7 @@ import ProductList from "../pages/ProductList/ProductList"
 import SignInPage from "../pages/SignInPage/SignInPage"
 import SignUpPage from "../pages/SignUpPage/SignUpPage"
 import AdminPage from "../pages/AdminPage/AdminPage"
+import SearchResultPage from "../pages/SearchResult/SearchResult"
 
 export const routes = [
     {
@@ -27,6 +28,11 @@ export const routes = [
     {
         path: '/product-detail/:id',
         page: ProductDetailPage,
+        isShowHeader: true
+    },
+    {
+        path: '/search-result',
+        page: SearchResultPage,
         isShowHeader: true
     },
     {

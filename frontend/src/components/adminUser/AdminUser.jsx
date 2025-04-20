@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Modal, Form, Input, InputNumber, Select, Button, Spin, Table } from 'antd';
+import ConfirmDeleteModal from '../ConfirmDeleteModal/ConfirmDeleteModal';
+import NotifyComponent from '../NotifyComponent/NotifyComponent';
 
 const AdminUser = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [showNotify, setShowNotify] = useState(false);
+  const [notifyProps, setNotifyProps] = useState({ status: '', title: '', btnTitle: '' });
   const [form] = Form.useForm();
 
   // Lấy danh sách người dùng
@@ -37,9 +43,21 @@ const AdminUser = () => {
       const values = await form.validateFields();
       await axios.put(`http://localhost:3000/api/users/${editingUser._id}`, values);
       setIsModalVisible(false);
+      setNotifyProps({
+        status: 'success',
+        title: 'Cập nhật người dùng thành công!',
+        btnTitle: 'Đóng'
+      });
+      setShowNotify(true);
       fetchUsers(); // Gọi lại danh sách sau khi cập nhật
     } catch (err) {
-      console.error("Lỗi cập nhật:", err);
+      setNotifyProps({
+        status: 'error',
+        title: 'Cập nhật người dùng thất bại!',
+        subtitle: err,
+        btnTitle: 'Đóng'
+      });
+      setShowNotify(true);
     }
   };
 
@@ -47,10 +65,29 @@ const AdminUser = () => {
     try {
       await axios.delete(`http://localhost:3000/api/users/${userId}`);
       // Cập nhật lại danh sách sau khi xóa
+      setNotifyProps({
+        status: 'success',
+        title: 'Xóa người dùng thành công!',
+        btnTitle: 'Đóng'
+      });
+      setShowNotify(true);
       fetchUsers();
     } catch (err) {
-      console.error("Lỗi xóa người dùng:", err);
+      setNotifyProps({
+        status: 'error',
+        title: 'Xóa người dùng thất bại!',
+        subtitle: err,
+        btnTitle: 'Đóng'
+      });
+      setShowNotify(true);
+    } finally {
+      setDeleteModalVisible(false);
+      setUserToDelete(null);
     }
+  };
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    await handleDeleteUser(userToDelete._id);
   };
 
   const columns = [
@@ -71,7 +108,14 @@ const AdminUser = () => {
       title: 'Xóa',
       key: 'delete',
       render: (_, record) => (
-        <Button type="link" danger onClick={() => handleDeleteUser(record._id)}>
+        <Button
+          type="link"
+          danger
+          onClick={() => {
+            setUserToDelete(record);
+            setDeleteModalVisible(true);
+          }}
+        >
           Xóa
         </Button>
       ),
@@ -83,6 +127,23 @@ const AdminUser = () => {
       {loading ? <Spin size="large" /> : (
         <Table dataSource={users} columns={columns} rowKey={(record) => record._id} />
       )}
+
+      {showNotify && (
+        <NotifyComponent
+          status={notifyProps.status}
+          title={notifyProps.title}
+          btnTitle={notifyProps.btnTitle}
+          onClose={() => setShowNotify(false)}
+        />
+      )}
+
+      <ConfirmDeleteModal
+        visible={deleteModalVisible}
+        onCancel={() => setDeleteModalVisible(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xoá người dùng"
+        content={`Bạn có muốn xoá người dùng "${userToDelete?.username}" không?`}
+      />
 
       <Modal
         title="Chỉnh sửa người dùng"

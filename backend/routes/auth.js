@@ -8,9 +8,9 @@ const isAdmin = require('../middleware/isAdmin');
 const router = express.Router();
 const JWT_SECRET = 'mysecretkey';
 
-router.get('/admin-dashboard', isAdmin, (req, res) => {
-  res.json({ message: 'Chào mừng bạn đến trang Admin!' });
-});
+// router.get('/admin-dashboard', isAdmin, (req, res) => {
+//   res.json({ message: 'Chào mừng bạn đến trang Admin!' });
+// });
 
 
 // Đăng nhập

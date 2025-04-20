@@ -40,10 +40,8 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')));
 // Cấu hình session
 app.use(sessionConfig);
 
-
 // Middleware để đếm số lượng sản phẩm trong giỏ
 app.use(cartMiddleware);
-
 
 // Import routes
 
@@ -53,9 +51,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/products", productRoutes);
-app.use("/categories", categoryRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
-
 
 //Middleware check lỗi
 app.use(errorHandler);

@@ -5,23 +5,27 @@ const Category = require("../models/categories");
 // 📌 GET all categories
 router.get("/", async (req, res) => {
   try {
-    const categories = await Category.find().populate("parentCategory"); // Để lấy thông tin của category mẹ
+    const categories = await Category.find().populate("parentCategory"); // Đảm bảo rằng `parentCategory` được populate để lấy thông tin
     res.json(categories);
   } catch (err) {
     res.status(500).json({ message: "Lỗi server", error: err });
   }
 });
 
-// ✅ POST - Create a new category
-router.post("/", async (req, res) => {
-  const { cat_name, description, parentCategory } = req.body;
 
-  if (!cat_name) {
-    return res.status(400).json({ message: "Thiếu thông tin category!" });
+// ✅ POST - Create a new category
+router.post("/add", async (req, res) => {
+  const { name, category_id } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ message: "Thiếu tên danh mục!" });
   }
 
   try {
-    const newCategory = new Category({ cat_name, parentCategory });
+    const newCategory = new Category({
+      cat_name: name,
+      parentCategory: category_id || null,
+    });
     const savedCategory = await newCategory.save();
     res.status(201).json(savedCategory);
   } catch (err) {

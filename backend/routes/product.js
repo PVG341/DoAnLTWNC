@@ -7,6 +7,7 @@ const multer = require("multer");
 
 const router = express.Router();
 const uploadDir = path.join(__dirname, "../public/images/");
+const Category = require('../models/categories')
 
 // Đảm bảo thư mục images tồn tại
 if (!fs.existsSync(uploadDir)) {
@@ -34,6 +35,47 @@ router.get("/", async (req, res) => {
         res.status(500).json({ message: "Lỗi server" });
     }
 });
+
+
+// GET - Lấy sản phẩm theo danh mục, bao gồm cả sản phẩm của các danh mục con
+router.get("/category", async (req, res) => {
+    try {
+      const { category } = req.query;  // Lấy category từ query string
+  
+      // Tìm tất cả các danh mục con
+      const categories = await Category.find({ parentCategory: category });
+  
+      // Tạo danh sách các category con bao gồm cả category chính
+      const allCategories = [category, ...categories.map(cat => cat._id)];
+  
+      // Lấy sản phẩm theo tất cả các danh mục
+      const products = await Product.find({
+        category_id: { $in: allCategories }
+      });
+  
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ message: "Lỗi khi lấy sản phẩm", error: err });
+    }
+  });
+
+// GET - Tìm kiếm sản phẩm theo tên
+router.get("/search", async (req, res) => {
+    try {
+        const { q } = req.query; // Lấy query từ URL (?q=)
+        if (!q) return res.status(400).json({ message: "Thiếu từ khóa tìm kiếm" });
+
+        const products = await Product.find({
+            name: { $regex: q, $options: 'i' } // Tìm tên chứa chuỗi q, không phân biệt hoa thường
+        });
+
+        res.json(products);
+    } catch (err) {
+        console.error("Lỗi tìm kiếm sản phẩm:", err);
+        res.status(500).json({ message: "Lỗi server khi tìm kiếm", error: err.message });
+    }
+});
+
 
 // Route thêm sản phẩm
 router.post("/add", upload.single("imageFile"), async (req, res) => {
